@@ -14,10 +14,10 @@ clean:
 
 macro.o: macro.c
 	mkdir -p $(BUILD_DIR)
-	gcc -c -g -Wfatal-errors -fno-pie -m32 -o $(BUILD_DIR)/macro.o macro.c
+	gcc -c -g -Wfatal-errors -fno-pie -no-pie -m32 -o $(BUILD_DIR)/macro.o macro.c
 
 %: %.asm macro.o
 	mkdir -p $(BUILD_DIR)
 	nasm -g -f elf32 -DUNIX -F dwarf -o $(BUILD_DIR)/$(notdir $@.o) $<
-	gcc -no-pie -m32 -o $(BUILD_DIR)/$(notdir $@) $(BUILD_DIR)/$(notdir $@.o) $(BUILD_DIR)/macro.o
+	gcc -fno-pie -no-pie -m32 -o $(BUILD_DIR)/$(notdir $@) $(BUILD_DIR)/$(notdir $@.o) $(BUILD_DIR)/macro.o
 	rm $(BUILD_DIR)/$(notdir $@.o)
