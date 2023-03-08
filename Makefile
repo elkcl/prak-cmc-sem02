@@ -7,7 +7,7 @@ PROGS = $(patsubst %.asm,%,$(SRCS))
 
 BUILD_DIR = build
 
-all: macro.o $(PROGS)
+all: $(PROGS)
 
 clean:
 	rm -rf $(BUILD_DIR)
