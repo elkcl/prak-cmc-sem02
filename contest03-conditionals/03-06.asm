@@ -12,9 +12,10 @@ main:
     mov ebx, 1
     shl ebx, cl
     sub ebx, 1       ; ebx = MASK
-    mov edx, ecx
+    mov edx, ecx     ; edx = K
     mov ecx, 32
-    sub ecx, edx
+    sub ecx, edx     
+    inc ecx          ; ecx = COUNTER
     mov esi, 0       ; esi = ANS
     
 .L1:
@@ -22,7 +23,7 @@ main:
     and eax, ebx
     cmp eax, esi
     cmova esi, eax
-    ror edi, 1
+    shr edi, 1
     loop .L1
     
     mov eax, esi
