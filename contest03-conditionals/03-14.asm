@@ -22,6 +22,32 @@ main:
     call io_print_udec
     jmp .EXIT
 .NA:
+    cmp dword [n], 0
+    je .ANS
+    
+    xor ebx, ebx
+    xor edx, edx
+    mov ecx, 1
+    .L0_i:
+        test [n], ecx
+        setnz dl
+        add ebx, edx
+    shl ecx, 1
+    test ecx, ecx
+    jnz .L0_i
+    
+    mov eax, 32
+    sub eax, ebx
+    bsr ebx, [n]
+    xor ebx, 31
+    sub eax, ebx
+    xor ebx, ebx
+    cmp eax, [k]
+    sete bl
+    add [ans], ebx
+    
+    
+    
     xor edi, edi
     .L1_n:         ; n = 0..31
         mov ebx, edi
@@ -33,8 +59,8 @@ main:
     cmp edi, 31
     jl .L1_n
     
-    xor edi, edi
-    .L2_n:         ; n = 0..31
+    mov edi, 2
+    .L2_n:         ; n = 2..31
         mov ebx, edi
         imul ebx, 31
         inc ebx
@@ -42,46 +68,59 @@ main:
         dec edx
         imul edx, 31
         
-        xor esi, esi
-        inc esi
-        .L2_k:     ; k = 1..31
+        mov esi, 1
+        .L2_k:     ; k = 1..n
             mov eax, [pas + edx*4]
             inc edx
             add eax, [pas + edx*4]
             mov [pas + ebx*4], eax
             inc ebx
         inc esi
-        cmp esi, 31
+        cmp esi, edi
         jl .L2_k
     inc edi
     cmp edi, 31
     jl .L2_n
     
-    lzcnt edi, [n]
+    bsr edi, [n]
+    xor edi, 31
     mov edx, 1
     shl edx, 31
     mov ecx, edi
     shr edx, cl
-.L3:
-    lzcnt ecx, [n]
-    sub ecx, edi
-    add edi, ecx
-    ; ecx - сдвиг
-    ; edi - lzcnt
-    shr edx, cl
     xor [n], edx
-    sub [k], ecx
-    inc dword [k]
     mov ebx, 31
     sub ebx, edi
     imul ebx, 31
+    inc dword [k]
     add ebx, [k]
     mov eax, [pas + ebx*4]
     add [ans], eax
-    mov eax, [n]
-    test eax, eax
-    jnz .L3
-    
+    dec dword [k]
+    cmp dword [n], 0
+    je .ANS
+    .L3:
+        bsr ecx, [n]
+        xor ecx, 31
+        sub ecx, edi
+        add edi, ecx
+        ; ecx - сдвиг
+        ; edi - lzcnt
+        shr edx, cl
+        xor [n], edx
+        sub [k], ecx
+        cmp dword [k], 0
+        jl .ANS
+        mov ebx, 31
+        sub ebx, edi
+        imul ebx, 31
+        add ebx, [k]
+        mov eax, [pas + ebx*4]
+        add [ans], eax
+        inc dword [k]
+    cmp dword [n], 0
+    jne .L3
+.ANS:    
     mov eax, [ans]
     call io_print_udec
     
