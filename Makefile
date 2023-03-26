@@ -2,13 +2,14 @@
 
 BUILD_DIR = build
 
-SRCS = $(wildcard contest02-arithmetic/*.asm)
-SRCS += $(wildcard contest03-conditionals/*.asm)
+ASM_SRCS = $(wildcard */*.asm)
+C_SRCS = $(wildcard */*.c)
 
-PROGS = $(patsubst %.asm,$(BUILD_DIR)/%,$(SRCS))
+ASM_PROGS = $(patsubst %.asm,$(BUILD_DIR)/%,$(ASM_SRCS))
+C_PROGS = $(patsubst %.c,$(BUILD_DIR)/%,$(C_SRCS))
 
 
-all: $(PROGS)
+all: $(ASM_PROGS) $(C_PROGS)
 
 clean:
 	rm -rf $(BUILD_DIR)
@@ -22,3 +23,7 @@ $(BUILD_DIR)/%: %.asm $(BUILD_DIR)/macro.o
 	nasm -g -f elf32 -DUNIX -F dwarf -o $@.o $<
 	gcc -fno-pie -no-pie -m32 -o $@ $@.o $(BUILD_DIR)/macro.o
 	rm $@.o
+	
+$(BUILD_DIR)/%: %.c
+	mkdir -p $(dir $@)
+	gcc -O2 -Wall -Wformat-security -Wignored-qualifiers -Winit-self -Wswitch-default -Wfloat-equal -Wpointer-arith -Wtype-limits -Wempty-body -Wno-logical-op -Wstrict-prototypes -Wold-style-declaration -Wold-style-definition -Wmissing-parameter-type -Wmissing-field-initializers -Wnested-externs -Wno-pointer-sign -Wno-unused-result -std=gnu99 -lm -g -m32 -o $@ $<
