@@ -4,7 +4,7 @@ extern fopen, fclose, fscanf, printf
 
 section .rodata
     ifmt: db "%*d", 0
-    ofmt: db "%d\n", 0
+    ofmt: db `%d\n`, 0
     filename: db "data.in", 0
     mode: db "r", 0
 
