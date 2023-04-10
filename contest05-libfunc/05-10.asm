@@ -44,6 +44,7 @@ bf:
     mov [esp+4], eax
     mov eax, [ebp+8]
     mov eax, [eax + node.r]
+    mov [esp], eax
     call h
     sub eax, [esp+4]
     leave
@@ -339,8 +340,7 @@ remove_key:
     mov [ebx + node.r], eax
     mov [ebx + node.l], esi
 .BALANCE:
-    mov eax, [ebp+8]
-    mov [esp], eax
+    mov [esp], ebx
     call balance
 .EXIT:
     mov ebx, [esp+8]
@@ -361,6 +361,7 @@ node_free:
     call node_free
     mov eax, [ebp+8]
     mov eax, [eax + node.r]
+    mov [esp], eax
     call node_free
     mov eax, [ebp+8]
     mov [esp], eax
