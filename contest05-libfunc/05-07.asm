@@ -13,7 +13,11 @@ section .bss
 section .text
 global main
 main:
-    enter 8, 0
+    enter 24, 0
+    mov [esp+8], ebx
+    mov [esp+12], esi
+    mov [esp+16], edi
+
     mov dword [esp], ifmt_n
     mov dword [esp+4], n
     call scanf
@@ -56,5 +60,8 @@ main:
     call printf
     
     xor eax, eax
+    mov ebx, [esp+8]
+    mov esi, [esp+12]
+    mov edi, [esp+16]
     leave
     ret

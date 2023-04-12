@@ -17,6 +17,10 @@ section .text
 global main
 main:
     enter 24, 0
+    mov [esp+12], ebx
+    mov [esp+16], esi
+    mov [esp+20], edi
+
     mov dword [esp], ifmt
     mov dword [esp+4], n
     call scanf
@@ -138,5 +142,8 @@ main:
     call free
     
     xor eax, eax
+    mov ebx, [esp+12]
+    mov esi, [esp+16]
+    mov edi, [esp+20]
     leave
     ret

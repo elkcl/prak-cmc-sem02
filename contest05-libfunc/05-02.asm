@@ -15,7 +15,9 @@ section .bss
 section .text
 global main
 main:
-    enter 8, 0
+    enter 24, 0
+    mov [esp+8], ebx
+
     ; esp+0 - fmt
     ; esp+4 - str
     mov dword [esp], ifmt
@@ -45,5 +47,6 @@ main:
     call puts
 
     xor eax, eax
+    mov ebx, [esp+8]
     leave
     ret

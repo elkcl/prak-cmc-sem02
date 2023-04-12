@@ -14,7 +14,9 @@ section .bss
 section .text
 global main
 main:
-    enter 8, 0
+    enter 24, 0
+    mov [esp+8], ebx
+
     mov dword [esp], filename
     mov dword [esp+4], mode
     call fopen
@@ -37,6 +39,8 @@ main:
     mov eax, [handle]
     mov [esp], eax
     call fclose
+
     xor eax, eax
+    mov ebx, [esp+8]
     leave
     ret
