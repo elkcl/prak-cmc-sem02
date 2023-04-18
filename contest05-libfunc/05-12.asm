@@ -50,13 +50,13 @@ main:
         cmp eax, -1
         je .R
         div dword [sz]
-        mov dword [vis + eax], 1
+        mov byte [vis + eax], 1
         .R:
         mov eax, [tree + ecx + node.r]
         cmp eax, -1
         je .CONT1
         div dword [sz]
-        mov dword [vis + eax], 1
+        mov byte [vis + eax], 1
         .CONT1:
     add ecx, node_size
     jmp .L1
@@ -66,7 +66,7 @@ main:
     .L2:
     cmp ecx, [n]
     jnl .L2_EXIT
-        cmp dword [vis + ecx], 0
+        cmp byte [vis + ecx], 0
         jne .CONT2
         imul ecx, 12
         mov [root], ecx
