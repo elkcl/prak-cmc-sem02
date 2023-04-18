@@ -1,4 +1,4 @@
-extern fopen, fclose, fscanf, fprintf, calloc, free
+extern fopen, fclose, fscanf, fprintf, malloc, free, putc
 
 %define EOF -1
 
@@ -34,7 +34,27 @@ main:
     call fopen
     mov [out_handle], eax
 
-    
+    call list_read
+    mov edx, eax
+    xor ecx, ecx
+    .L1:
+    test edx, edx
+    jz .L1_EXIT
+    inc ecx
+    mov edx, [edx + node.next]
+    jmp .L1
+    .L1_EXIT:
+    mov [esp], eax
+    mov [esp+4], ecx
+    call list_sort
+    mov [esp], eax
+    call list_print
+    mov [esp], eax
+    call list_free
+    mov dword [esp], `\n`
+    mov eax, [out_handle]
+    mov [esp+4], eax
+    call putc
 
     mov eax, [in_handle]
     mov [esp], eax
@@ -51,7 +71,7 @@ main:
 ; xs: node* (ebp+8)
 ; ys: node* (ebp+12)
 ; -> node*
-merge:
+list_merge:
     enter 8,0
     
     mov eax, [ebp+12]
@@ -70,7 +90,7 @@ merge:
     mov eax, [eax + node.next]
     mov [esp], eax
     mov [esp+4], edx
-    call merge
+    call list_merge
     mov edx, [ebp+8]
     mov [edx + node.next], eax
     mov eax, edx
@@ -80,7 +100,7 @@ merge:
     mov edx, [edx + node.next]
     mov [esp], eax
     mov [esp+4], edx
-    call merge
+    call list_merge
     mov edx, [ebp+12]
     mov [edx + node.next], eax
     mov eax, edx
@@ -93,7 +113,7 @@ merge:
 ; xs: node* (ebp+8)
 ; n: int (ebp+12)
 ; -> node*
-sort:
+list_sort:
     enter 24,0
     mov [esp+8], esi
     mov [esp+12], edi
@@ -109,17 +129,19 @@ sort:
     dec ecx
     mov esi, [ebp+8]
     mov edx, esi
+    jecxz .L1_EXIT
     .L1:
     mov edx, [edx + node.next]
     loop .L1
+    .L1_EXIT:
     mov edi, [edx + node.next]
-    mov [edx + node.next], 0
+    mov dword [edx + node.next], 0
 
     mov ecx, [ebp+12]
     shr ecx, 1
     mov [esp], esi
     mov [esp+4], ecx
-    call sort
+    call list_sort
     mov esi, eax
 
     mov ecx, [ebp+12]
@@ -128,14 +150,14 @@ sort:
     add ecx, [ebp+12]
     mov [esp], edi
     mov [esp+4], ecx
-    call sort
+    call list_sort
     mov edi, eax
 
     mov [esp], esi
     mov [esp+4], edi
-    call merge
+    call list_merge
     
-.EXIT
+.EXIT:
     mov esi, [esp+8]
     mov edi, [esp+12]
     leave
@@ -152,11 +174,63 @@ list_read:
     lea eax, [esp+12]
     mov [esp+8], eax
     call fscanf
-    cmp eax, EOF
+    mov ecx, eax
+    xor eax, eax
+    cmp ecx, EOF
     je .EXIT
+    mov ebx, [esp+12]
+    
+    mov dword [esp], node_size
+    call malloc
+    
+    mov [eax + node.val], ebx
+    mov ebx, eax
+    call list_read
+    mov [ebx + node.next], eax
     mov eax, ebx
-
+    
 .EXIT:
     mov ebx, [esp+16]
+    leave
+    ret
+    
+; xs: node* (ebp+8)
+; -> void
+list_print:
+    enter 24,0
+    
+    mov eax, [out_handle]
+    mov [esp], eax
+    mov dword [esp+4], ofmt
+    mov eax, [ebp+8]
+    test eax, eax
+    jz .EXIT
+    mov eax, [eax + node.val]
+    mov [esp+8], eax
+    call fprintf
+    
+    mov eax, [ebp+8]
+    mov eax, [eax + node.next]
+    mov [esp], eax
+    call list_print
+    
+.EXIT:    
+    leave
+    ret
+    
+; xs: node* (ebp+8)
+; -> void
+list_free:
+    enter 8,0
+    mov eax, [ebp+8]
+    test eax, eax
+    jz .EXIT
+    mov eax, [eax + node.next]
+    mov [esp], eax
+    call list_free
+    mov eax, [ebp+8]
+    mov [esp], eax
+    call free
+.EXIT:
     leave
     ret
